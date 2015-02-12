@@ -76,7 +76,10 @@ var performanceManager = (function(isDebugMode){
 
     function calcTime(eventName){
         var measure = window.performance.getEntriesByName(eventName)[0];
-        return measure.duration + measure.startTime;
+        if(typeof measure !== 'undefined')
+            return measure.duration + measure.startTime;
+        else
+            return 'N/A';
     }
 
     function init(viewersArr){           
@@ -125,11 +128,31 @@ var performanceManager = (function(isDebugMode){
 })(location.hash.indexOf("debug") == 1);
 
 
-$(function() { 
-    $(document).on("loadDebugger",function(){                
+
+    $(document).on("loadTemplate",function(){                
         performanceManager.Init(vm.getViewers());      
     })
-});
+	
+	$(document).on("first_init_start",function(event, data){  			
+       performanceManager.Measure(data.Id + "_first_init") 
+       performanceManager.Mark(data.Id + "_first_init_start")
+    })
+
+    $(document).on("first_init_end",function(event, data){            
+       performanceManager.Mark(data.Id + "_first_init_end")                
+       performanceManager.CalcAndWriteToLog(data.Id + "_first_init")
+    })
+
+    $(document).on("full_init_start",function(event, data){            
+       performanceManager.Measure(data.Id + "_full_init") 
+       performanceManager.Mark(data.Id + "_full_init_start")
+    })
+
+    $(document).on("full_init_end",function(event, data){            
+       performanceManager.Mark(data.Id + "_full_init_end")                
+       performanceManager.CalcAndWriteToLog(data.Id + "_full_init")
+    })
+
 
 
    
