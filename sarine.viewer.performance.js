@@ -54,17 +54,10 @@ var performanceManager = (function(isDebugMode){
     function formatTime(totalTime){
         return (totalTime / 1000).toFixed(3) + "s";
     }
-
-    function writeToLog(id, totalTime){        
-        $('#' + id + '>.value').html(performanceManager.FormatTime(totalTime))
-    }
+    
     function calcAndWriteToLog(id){
     $('#' + id + '>.value').html(performanceManager.FormatTime(calcTime(id)))
-    }
-
-    /*function isDebugMode(){
-        return location.hash.indexOf("debug") == 1;
-    }*/
+    }    
 
     function measure(id){    
         window.performance.measure(id);    
@@ -118,8 +111,7 @@ var performanceManager = (function(isDebugMode){
 
     }
 
-    return {
-        FormatTime : formatTime,        
+    return {                
         Measure : measure,
         Mark : mark,
         CalcAndWriteToLog : calcAndWriteToLog,        
