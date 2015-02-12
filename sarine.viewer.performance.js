@@ -49,7 +49,7 @@ window.performance.mark("mark_start")
 
 
 
-var performanceManager = (function(){
+var performanceManager = (function(isDebugMode){
     
     function formatTime(totalTime){
         return (totalTime / 1000).toFixed(3) + "s";
@@ -62,9 +62,9 @@ var performanceManager = (function(){
     $('#' + id + '>.value').html(performanceManager.FormatTime(calcTime(id)))
     }
 
-    function isDebugMode(){
+    /*function isDebugMode(){
         return location.hash.indexOf("debug") == 1;
-    }
+    }*/
 
     function measure(id){    
         window.performance.measure(id);    
@@ -107,25 +107,27 @@ var performanceManager = (function(){
             ul.appendChild(li2);
          }
          document.body.appendChild(ul);
-         $("#debug_log").show();
+
+        if(isDebugMode)
+            $("#debug_log").show();
+        else
+            $("#debug_log").hide();
+
     }
 
     return {
-        FormatTime : formatTime,
-        IsDebugMode : isDebugMode,
-        WriteToLog : writeToLog,
+        FormatTime : formatTime,        
         Measure : measure,
         Mark : mark,
         CalcAndWriteToLog : calcAndWriteToLog,        
         Init : init
     }
-})();
+})(location.hash.indexOf("debug") == 1);
 
 
 $(function() { 
-    $(document).on("loadDebugger",function(){        
-        if(performanceManager.IsDebugMode())
-            performanceManager.Init(vm.getViewers());      
+    $(document).on("loadDebugger",function(){                
+        performanceManager.Init(vm.getViewers());      
     })
 });
 
