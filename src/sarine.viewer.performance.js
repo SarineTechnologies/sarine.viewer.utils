@@ -8,7 +8,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
             performance.webkitNow ||
             function() {
                 return new Date().getTime();
-            };
+            };  
     })();
 }
 
