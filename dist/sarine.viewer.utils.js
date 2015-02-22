@@ -667,7 +667,7 @@ var performanceManager = (function(isDebugMode){
     }
     
     function calcAndWriteToLog(id){
-    $('#' + id + '>.value').html(performanceManager.FormatTime(calcTime(id)))
+    $('#' + id + '>.value').html(formatTime(calcTime(id)))
     }    
 
     function measure(id){    
