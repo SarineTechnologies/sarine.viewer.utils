@@ -1,5 +1,9 @@
 $(function() {
-    
+     if (typeof utilsManager !== 'undefined'){
+    	if(!utilsManager.IsMobile()){ 
+    		 
+    	}
+    }
 });
 /*!
  * jReject (jQuery Browser Rejection Plugin)
@@ -643,7 +647,7 @@ if (window.performance.mark == undefined) {
 }
 
 document.initTime = performance.now();
-window.performance.mark("mark_start")
+window.performance.mark("mark_start");
 
 
 
@@ -724,23 +728,23 @@ var performanceManager = (function(isDebugMode){
     })
 	
 	$(document).on("first_init_start",function(event, data){  			
-       performanceManager.Measure(data.Id + "_first_init") 
-       performanceManager.Mark(data.Id + "_first_init_start")
+       performanceManager.Measure(data.Id + "_first_init"); 
+       performanceManager.Mark(data.Id + "_first_init_start");
     })
 
     $(document).on("first_init_end",function(event, data){            
-       performanceManager.Mark(data.Id + "_first_init_end")                
-       performanceManager.CalcAndWriteToLog(data.Id + "_first_init")
+       performanceManager.Mark(data.Id + "_first_init_end");                
+       performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
     })
 
     $(document).on("full_init_start",function(event, data){            
-       performanceManager.Measure(data.Id + "_full_init") 
-       performanceManager.Mark(data.Id + "_full_init_start")
+       performanceManager.Measure(data.Id + "_full_init"); 
+       performanceManager.Mark(data.Id + "_full_init_start");
     })
 
     $(document).on("full_init_end",function(event, data){            
-       performanceManager.Mark(data.Id + "_full_init_end")                
-       performanceManager.CalcAndWriteToLog(data.Id + "_full_init")
+       performanceManager.Mark(data.Id + "_full_init_end");                
+       performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
     })
 
 
