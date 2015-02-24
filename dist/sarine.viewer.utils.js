@@ -1,5 +1,5 @@
 $(function() {
-    console.log( "ready!" );
+    
 });
 /*!
  * jReject (jQuery Browser Rejection Plugin)
