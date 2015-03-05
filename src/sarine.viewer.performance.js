@@ -34,23 +34,24 @@ if (window.performance.mark == undefined) {
     window.performance.clearMarks = function() {}
     window.performance.clearMeasures = function() {}
 
+    window.performance.measure = function(new_mark, start_mark_name, end_mark_name) {
+        if (typeof window.performance.getEntriesByName === 'undefined')
+            return;
 
-}
+        var start_mark = window.performance.getEntriesByName(start_mark_name)[0]
+        var end_mark = window.performance.getEntriesByName(end_mark_name)[0]
+        if (typeof window.performance.mark !== 'undefined') {
+            if (typeof start_mark !== 'undefined' && typeof end_mark !== 'undefined')
+                window.performance.mark(new_mark, end_mark.startTime - start_mark.startTime)
+            else
+                window.performance.mark(new_mark, new Date().getTime() - new Date().getTime())
+        }
 
-window.performance.measure = function(new_mark, start_mark_name, end_mark_name) {
-    if (typeof window.performance.getEntriesByName === 'undefined')
-        return;
-
-    var start_mark = window.performance.getEntriesByName(start_mark_name)[0]
-    var end_mark = window.performance.getEntriesByName(end_mark_name)[0]
-    if (typeof window.performance.mark !== 'undefined') {
-        if (typeof start_mark !== 'undefined' && typeof end_mark !== 'undefined')
-            window.performance.mark(new_mark, end_mark.startTime - start_mark.startTime)
-        else
-            window.performance.mark(new_mark, new Date().getTime() - new Date().getTime())
     }
 
-}
+}   
+
+
 
 document.initTime = performance.now();
 window.performance.mark("mark_start");
@@ -74,8 +75,8 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function mark(eventName) {
-        if (typeof window.performance.measure !== 'undefined')
-            window.performance.measure(eventName);
+        if (typeof window.performance.mark !== 'undefined')
+            window.performance.mark(eventName);
     }
 
     function calcTime(eventName) {
