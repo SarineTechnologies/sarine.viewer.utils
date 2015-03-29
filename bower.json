@@ -1,6 +1,6 @@
 {
   "name": "sarine.viewer.utils",
-  "version": "0.0.18",
+  "version": "0.0.22",
   "main": "dist/sarine.viewer.utils.js",
   "ignore": [
     ".git",
@@ -8,10 +8,6 @@
     "package.json",
     "Gruntfile.js"
   ],
-  "dependencies": {
-    
-  },
-  "exportsOverride": {
-        
-    }
+  "dependencies": {},
+  "exportsOverride": {}
 }
