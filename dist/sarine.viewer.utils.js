@@ -1,3 +1,6 @@
+/*
+sarine.viewer.utils - v0.1.0 -  Wednesday, May 6th, 2015, 10:24:54 AM 
+*/
 $(function() {
      if (typeof utilsManager !== 'undefined'){
     	if(!utilsManager.IsMobile()){ 

@@ -19,8 +19,22 @@ module.exports = function(grunt) {
         },
         concat: {
             build: {
+                options: {
+                    stripBanners: true,
+                    banner: '/*\n<%= config.name %> - v<%= config.version %> - ' +
+                        ' <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> ' + '\n*/\n',
+                },
                 src: ["src/*.js"],
                 dest: 'dist/sarine.viewer.utils.js'
+            },
+            commentMin : {
+                options: {
+                    stripBanners: true,
+                    banner: '/*\n<%= config.name %> - v<%= config.version %> - ' +
+                        ' <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> ' + '\n*/\n',
+                },
+                src: ["dist/sarine.viewer.utils.min.js"],
+                dest: 'dist/sarine.viewer.utils.min.js'
             }     
         },      
         uglify: {
@@ -32,69 +46,7 @@ module.exports = function(grunt) {
                     'dist/sarine.viewer.utils.min.js': ['dist/sarine.viewer.utils.js']
                 }
             }
-        },
-        gitcommit: {
-            all: {
-                options: {
-                    message: "<%= config.message %>",
-                    force: true
-                },
-                files: {
-                    src: files
-                }
-            },
-            bower: {
-                options: {
-                    message: "release : <%= config.version %>",
-                    force: true
-                },
-                files: {
-                    src: ["bower.json", "package.json"]
-                }
-            }
-        },
-        gitpush: {
-            all: {
-                options: {
-                    force: true
-                },
-                files: {
-                    src: files
-                }
-            }
-        },
-        gitadd: {
-            firstTimer: {
-                option: {
-                    force: true
-                },
-                files: {
-                    src: files
-                }
-            }
-        },
-        gitpull: {
-            build: {
-                options: {
-                    force: true
-                },
-                files: {
-                    src: files
-                }
-            }
-        },
-        prompt: {
-            all: {
-                options: {
-                    questions: [{
-                        config: 'config.message',
-                        type: 'input',
-                        message: 'comment:\n',
-                        default: 'commit'
-                    }]
-                }
-            }
         }
     })
-    grunt.registerTask('bundle', ['copy','concat','uglify']);
+    grunt.registerTask('bundle', ['copy','concat:build','uglify','concat:commentMin']);
 };
