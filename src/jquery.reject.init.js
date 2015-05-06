@@ -8,13 +8,13 @@ $(function() {
                 close: false, // Prevent closing of window ,
                 header: 'Your browser version is out of date',
                 display: ['chrome', 'safari', 'firefox', 'msie'],
-                imagePath:'//d3oayecwxm3wp6.cloudfront.net/qa2/content/viewers/shell/v1/images/'
+                imagePath:'//d3n02ovm6tlpii.cloudfront.net/content/viewers/shell/v1/images/'
             });
 
     		 if(typeof vm !== 'undefined') //stop viewers
     		 	vm.stop();
 
-            return false;
+            return false;  
     	}
     }
 });
