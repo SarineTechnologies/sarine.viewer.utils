@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v0.4.0 -  Tuesday, May 26th, 2015, 9:25:27 AM 
+sarine.viewer.utils - v0.5.0 -  Tuesday, May 26th, 2015, 10:53:43 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -699,7 +699,7 @@ var performanceManager = (function(isDebugMode) {
     function newRelic(measure){
         if(typeof measure === 'undefined')
             return;
-        var nr = newrelic || {addToTrace : function(obj){console.log(obj)}},
+        var nr = typeof(newrelic) != 'undefined' ?  newrelic : {addToTrace : function(obj){console.log(obj)}},
             now = Date.now();
         nr.addToTrace({
                 name : measure.name, 
