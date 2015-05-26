@@ -81,7 +81,7 @@ var performanceManager = (function(isDebugMode) {
     function newRelic(measure){
         if(typeof measure === 'undefined')
             return;
-        var nr = newrelic || {addToTrace : function(obj){console.log(obj)}},
+        var nr = typeof(newrelic) != 'undefined' ?  newrelic : {addToTrace : function(obj){console.log(obj)}},
             now = Date.now();
         nr.addToTrace({
                 name : measure.name, 
