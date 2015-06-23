@@ -56,7 +56,7 @@ if (window.performance.mark == undefined) {
 document.initTime = performance.now();
 window.performance.mark("mark_start");
 
-
+var startTime = Date.now();
 
 var performanceManager = (function(isDebugMode) {
 
@@ -69,9 +69,9 @@ var performanceManager = (function(isDebugMode) {
         $('#' + id + '>.value').html(formatTime(calcTime(id)))
     }
 
-    function measure(id) {
+    function measure(id,start,end) {
         if (typeof window.performance.measure !== 'undefined')
-            window.performance.measure(id);
+            window.performance.measure(id,start,end);  
     }
 
     function mark(eventName) {
@@ -85,8 +85,10 @@ var performanceManager = (function(isDebugMode) {
             now = Date.now();
         nr.addToTrace({
                 name : measure.name, 
-                start : now - measure.duration - measure.startTime,
-                end : now
+                start : startTime + measure.startTime,
+                end : startTime + measure.startTime + measure.duration,
+                origin : location.origin,
+                type : measure.name.split("_").slice(2).join("-")
                 
             })
         return measure;
@@ -136,38 +138,38 @@ var performanceManager = (function(isDebugMode) {
         else
             $("#debug_log").hide();
 
-    }
+    } 
 
-    return {
+    return {        
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
         Init: init
     }
-})(location.hash.indexOf("debug") == 1);
+})(location.hash.indexOf("debug") == 1); 
 
+ 
 
+$(document).on("loadTemplate", function() {  
+    performanceManager.Init(vm.getViewers());  
+}) 
 
-$(document).on("loadTemplate", function() {
-    performanceManager.Init(vm.getViewers());
-})
-
-$(document).on("first_init_start", function(event, data) {
-    performanceManager.Measure(data.Id + "_first_init");
-    performanceManager.Mark(data.Id + "_first_init_start");
+$(document).on("first_init_start", function(event, data) {    
+    performanceManager.Mark(data.Id + "_first_init_start"); 
 })
 
 $(document).on("first_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_end");
-    performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
+    performanceManager.Measure(data.Id + "_first_init",data.Id + "_first_init_start",data.Id + "_first_init_end");
+    performanceManager.CalcAndWriteToLog(data.Id + "_first_init"); 
 })
 
 $(document).on("full_init_start", function(event, data) {
-    performanceManager.Measure(data.Id + "_full_init");
-    performanceManager.Mark(data.Id + "_full_init_start");
+    performanceManager.Mark(data.Id + "_full_init_start");   
 })
 
-$(document).on("full_init_end", function(event, data) {
+$(document).on("full_init_end", function(event, data) { 
     performanceManager.Mark(data.Id + "_full_init_end");
+    performanceManager.Measure(data.Id + "_full_init",data.Id + "_full_init_start",data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
 })
