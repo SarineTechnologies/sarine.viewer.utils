@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.1.0 -  Thursday, July 9th, 2015, 2:26:25 PM 
+sarine.viewer.utils - v1.1.0 -  Tuesday, July 21st, 2015, 10:50:17 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -677,7 +677,7 @@ window.performance.mark("mark_start");
 var startTime = Date.now();
 
 var performanceManager = (function(isDebugMode) {
-
+    var firstInit = false, fullInit = false;
     function formatTime(totalTime) {
         if (typeof totalTime !== 'undefined' && totalTime !== null)
             return (totalTime / 1000).toFixed(3) + "s";
@@ -699,16 +699,33 @@ var performanceManager = (function(isDebugMode) {
     function newRelic(measure){
         if(typeof measure === 'undefined')
             return;
-        var nr = typeof(newrelic) != 'undefined' ?  newrelic : {addToTrace : function(obj){console.log(obj)}},
+        var nr = typeof(newrelic) != 'undefined' ? newrelic : {
+                addToTrace: function(obj) {
+                    console.log(obj)
+                },
+                setCustomAttribute: function(name, value) {
+                    console.log({
+                        name: name,
+                        value: value
+                    })
+                }
+            },
             now = Date.now();
+        if(measure.name.indexOf("first_init") != -1 && !firstInit && window.performance){
+            firstInit = true;
+            window.performance.measure('first_init','mark_start',measure.name + '_end');
+            var m = window.performance.getEntriesByName('first_init')[0]
+            nr.setCustomAttribute('first_init',m.duration + m.startTime); 
+        }
         nr.addToTrace({
                 name : measure.name, 
-                start : startTime + measure.startTime,
+                start : startTime,
                 end : startTime + measure.startTime + measure.duration,
                 origin : location.origin,
                 type : measure.name.split("_").slice(2).join("-")
                 
             })
+        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration)
         return measure;
     }
     function calcTime(eventName) {
@@ -731,10 +748,12 @@ var performanceManager = (function(isDebugMode) {
 
         for (var i = 0; i < viewersArr.length; i++) {
 
+            var exist = !(viewersArr[i].imagesArr && viewersArr[i].src + viewersArr[i].imagesArr[0] == viewersArr[i].callbackPic);
+
             //first init
             var li = document.createElement('li');
             var span = document.createElement('span');
-            span.innerText = 'loading...';
+            span.innerText = exist ? 'loading...' : 'not exist';
             span.className = 'value';
             li.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init';
             li.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init : ' + span.outerHTML;
@@ -743,7 +762,7 @@ var performanceManager = (function(isDebugMode) {
             //full init
             var li2 = document.createElement('li');
             var span = document.createElement('span');
-            span.innerText = 'loading...';
+            span.innerText = exist ? 'loading...' : 'not exist';
             span.className = 'value';
             li2.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init';
             li2.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init : ' + span.outerHTML;
@@ -758,22 +777,23 @@ var performanceManager = (function(isDebugMode) {
 
     } 
 
-    return {        
+    return {         
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
         Init: init
     }
-})(location.hash.indexOf("debug") == 1); 
+})(location.hash.indexOf("debug") == 1);  
 
  
-
 $(document).on("loadTemplate", function() {  
-    performanceManager.Init(vm.getViewers());  
+    if(vm)
+        performanceManager.Init(vm.getViewers());
 }) 
 
 $(document).on("first_init_start", function(event, data) {    
-    performanceManager.Mark(data.Id + "_first_init_start"); 
+    performanceManager.Mark(data.Id + "_first_init_start");  
+
 })
 
 $(document).on("first_init_end", function(event, data) {
@@ -781,16 +801,16 @@ $(document).on("first_init_end", function(event, data) {
     performanceManager.Measure(data.Id + "_first_init",data.Id + "_first_init_start",data.Id + "_first_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_first_init"); 
 })
-
+ 
 $(document).on("full_init_start", function(event, data) {
-    performanceManager.Mark(data.Id + "_full_init_start");   
+    performanceManager.Mark(data.Id + "_full_init_start");     
 })
 
 $(document).on("full_init_end", function(event, data) { 
     performanceManager.Mark(data.Id + "_full_init_end");
     performanceManager.Measure(data.Id + "_full_init",data.Id + "_full_init_start",data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
-})
+}) 
 
 if (!window.location.origin) {
   window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
