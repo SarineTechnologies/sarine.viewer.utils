@@ -60,6 +60,10 @@ var startTime = Date.now();
 
 var performanceManager = (function(isDebugMode) {
     var firstInit = false, fullInit = false;
+
+    if (isDebugMode) $("#debug_log").show()
+    else $("#debug_log").hide();
+
     function formatTime(totalTime) {
         if (typeof totalTime !== 'undefined' && totalTime !== null)
             return (totalTime / 1000).toFixed(3) + "s";
@@ -152,11 +156,9 @@ var performanceManager = (function(isDebugMode) {
         }
         document.body.appendChild(ul);
 
-        if (isDebugMode)
-            $("#debug_log").show();
-        else
-            $("#debug_log").hide();
-
+         if (isDebugMode) $("#debug_log").show()
+         else $("#debug_log").hide();
+ 
     } 
 
     return {         
