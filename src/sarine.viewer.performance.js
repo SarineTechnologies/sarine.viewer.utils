@@ -126,6 +126,7 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function init(viewersArr) {
+        //init debug box 
         var ul = document.createElement('ul');
         ul.id = 'debug_log';
         ul.style.position = "absolute";

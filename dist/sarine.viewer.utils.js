@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.2.0 -  Tuesday, September 1st, 2015, 10:23:58 AM 
+sarine.viewer.utils - v1.2.0 -  Tuesday, September 1st, 2015, 10:25:26 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -744,6 +744,7 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function init(viewersArr) {
+        //init debug box 
         var ul = document.createElement('ul');
         ul.id = 'debug_log';
         ul.style.position = "absolute";
