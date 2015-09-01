@@ -130,7 +130,7 @@ var performanceManager = (function(isDebugMode) {
         ul.id = 'debug_log';
         ul.style.position = "absolute";
         ul.style.bottom = "0"
-        ul.style.background = "#ccc"
+        ul.style.background = "#ccc";
 
         for (var i = 0; i < viewersArr.length; i++) {
 

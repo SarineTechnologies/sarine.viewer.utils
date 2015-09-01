@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.2.0 -  Tuesday, September 1st, 2015, 10:14:03 AM 
+sarine.viewer.utils - v1.2.0 -  Tuesday, September 1st, 2015, 10:23:58 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -748,7 +748,7 @@ var performanceManager = (function(isDebugMode) {
         ul.id = 'debug_log';
         ul.style.position = "absolute";
         ul.style.bottom = "0"
-        ul.style.background = "#ccc"
+        ul.style.background = "#ccc";
 
         for (var i = 0; i < viewersArr.length; i++) {
 
