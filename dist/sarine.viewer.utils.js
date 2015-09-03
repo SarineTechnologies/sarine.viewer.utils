@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.2.2 -  Tuesday, September 1st, 2015, 10:31:30 AM 
+sarine.viewer.utils - v1.3.0 -  Thursday, September 3rd, 2015, 11:46:52 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
