@@ -9,7 +9,7 @@
 
 (function($) {
 $.reject = function(options) {
-	var opts = $.extend(true, {
+	var opts = $.extend(true, {   
 		// Specifies which browsers/versions will be blocked
 		reject : {
 			all: false, // Covers Everything (Nothing blocked)

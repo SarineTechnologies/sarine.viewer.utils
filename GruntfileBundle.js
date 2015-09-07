@@ -40,7 +40,8 @@ module.exports = function(grunt) {
         uglify: {
             build: {
                 options: {
-                    mangle: false
+                    mangle: false,
+                    sourceMap : true
                 },
                 files: {
                     'dist/sarine.viewer.utils.min.js': ['dist/sarine.viewer.utils.js']

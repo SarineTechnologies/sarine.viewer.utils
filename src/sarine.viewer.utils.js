@@ -6,6 +6,6 @@ var utilsManager = (function(agent){
 	}
 
 	return {                
-       IsMobile : isMobile
+       IsMobile : isMobile  
     }
 })(navigator.userAgent || navigator.vendor || window.opera);

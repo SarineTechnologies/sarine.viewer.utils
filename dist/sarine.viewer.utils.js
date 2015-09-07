@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.3.0 -  Thursday, September 3rd, 2015, 11:46:52 AM 
+sarine.viewer.utils - v1.3.0 -  Monday, September 7th, 2015, 2:29:44 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -32,7 +32,7 @@ $(function() {
 
 (function($) {
 $.reject = function(options) {
-	var opts = $.extend(true, {
+	var opts = $.extend(true, {   
 		// Specifies which browsers/versions will be blocked
 		reject : {
 			all: false, // Covers Everything (Nothing blocked)
@@ -628,6 +628,6 @@ var utilsManager = (function(agent){
 	}
 
 	return {                
-       IsMobile : isMobile
+       IsMobile : isMobile  
     }
 })(navigator.userAgent || navigator.vendor || window.opera);
