@@ -1,4 +1,4 @@
-if (window.performance == undefined || window.performance.now == undefined) {
+/*if (window.performance == undefined || window.performance.now == undefined) {
     window.performance = {}
     window.performance.now = (function() {
         return performance.now ||
@@ -11,7 +11,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
             };
     })();
 }
-
+  
 
 if (window.performance.mark == undefined) {
     window.performance._marks = []
@@ -56,9 +56,13 @@ if (window.performance.mark == undefined) {
 document.initTime = performance.now();
 window.performance.mark("mark_start");
 
-
+var startTime = Date.now();
 
 var performanceManager = (function(isDebugMode) {
+    var firstInit = false, fullInit = false;
+
+    if (isDebugMode) $("#debug_log").show()
+    else $("#debug_log").hide();
 
     function formatTime(totalTime) {
         if (typeof totalTime !== 'undefined' && totalTime !== null)
@@ -69,40 +73,74 @@ var performanceManager = (function(isDebugMode) {
         $('#' + id + '>.value').html(formatTime(calcTime(id)))
     }
 
-    function measure(id) {
+    function measure(id,start,end) {
         if (typeof window.performance.measure !== 'undefined')
-            window.performance.measure(id);
+            window.performance.measure(id,start,end);  
     }
 
     function mark(eventName) {
         if (typeof window.performance.mark !== 'undefined')
             window.performance.mark(eventName);
     }
-
+    function newRelic(measure){
+        if(typeof measure === 'undefined')
+            return;
+        var nr = typeof(newrelic) != 'undefined' ? newrelic : {
+                addToTrace: function(obj) {
+                    console.log(obj)
+                },
+                setCustomAttribute: function(name, value) {
+                    console.log({
+                        name: name,
+                        value: value
+                    })
+                }
+            },
+            now = Date.now();
+        if(measure.name.indexOf("first_init") != -1 && !firstInit && window.performance){
+            firstInit = true;
+            window.performance.measure('first_init','mark_start',measure.name + '_end');
+            var m = window.performance.getEntriesByName('first_init')[0]
+            nr.setCustomAttribute('first_init',m.duration + m.startTime); 
+        }
+        nr.addToTrace({
+                name : measure.name, 
+                start : startTime,
+                end : startTime + measure.startTime + measure.duration,
+                origin : location.origin,
+                type : measure.name.split("_").slice(2).join("-")
+                
+            })
+        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration)
+        return measure;
+    }
     function calcTime(eventName) {
         if (typeof window.performance.getEntriesByName === 'undefined')
             return;
-
+        
         var measure = window.performance.getEntriesByName(eventName)[0];
-        if (typeof measure !== 'undefined')
+        if (newRelic(measure))
             return measure.duration + measure.startTime;
         else
             return 'N/A';
     }
 
     function init(viewersArr) {
+        //init debug box 
         var ul = document.createElement('ul');
         ul.id = 'debug_log';
         ul.style.position = "absolute";
         ul.style.bottom = "0"
-        ul.style.background = "#ccc"
+        ul.style.background = "#ccc";
 
         for (var i = 0; i < viewersArr.length; i++) {
+
+            var exist = !(viewersArr[i].imagesArr && viewersArr[i].src + viewersArr[i].imagesArr[0] == viewersArr[i].callbackPic);
 
             //first init
             var li = document.createElement('li');
             var span = document.createElement('span');
-            span.innerText = 'loading...';
+            span.innerText = exist ? 'loading...' : 'not exist';
             span.className = 'value';
             li.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init';
             li.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init : ' + span.outerHTML;
@@ -111,7 +149,7 @@ var performanceManager = (function(isDebugMode) {
             //full init
             var li2 = document.createElement('li');
             var span = document.createElement('span');
-            span.innerText = 'loading...';
+            span.innerText = exist ? 'loading...' : 'not exist';
             span.className = 'value';
             li2.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init';
             li2.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init : ' + span.outerHTML;
@@ -119,43 +157,43 @@ var performanceManager = (function(isDebugMode) {
         }
         document.body.appendChild(ul);
 
-        if (isDebugMode)
-            $("#debug_log").show();
-        else
-            $("#debug_log").hide();
+         if (isDebugMode) $("#debug_log").show()
+         else $("#debug_log").hide();
+ 
+    } 
 
-    }
-
-    return {
+    return {         
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
         Init: init
     }
-})(location.hash.indexOf("debug") == 1);
+})(location.hash.indexOf("debug") == 1);  
 
+ 
+$(document).on("loadTemplate", function() {  
+    if(vm)
+        performanceManager.Init(vm.getViewers());
+}) 
 
+$(document).on("first_init_start", function(event, data) {    
+    performanceManager.Mark(data.Id + "_first_init_start");  
 
-$(document).on("loadTemplate", function() {
-    performanceManager.Init(vm.getViewers());
-})
-
-$(document).on("first_init_start", function(event, data) {
-    performanceManager.Measure(data.Id + "_first_init");
-    performanceManager.Mark(data.Id + "_first_init_start");
 })
 
 $(document).on("first_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_end");
-    performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
+    performanceManager.Measure(data.Id + "_first_init",data.Id + "_first_init_start",data.Id + "_first_init_end");
+    performanceManager.CalcAndWriteToLog(data.Id + "_first_init"); 
 })
-
+ 
 $(document).on("full_init_start", function(event, data) {
-    performanceManager.Measure(data.Id + "_full_init");
-    performanceManager.Mark(data.Id + "_full_init_start");
+    performanceManager.Mark(data.Id + "_full_init_start");     
 })
 
-$(document).on("full_init_end", function(event, data) {
+$(document).on("full_init_end", function(event, data) { 
     performanceManager.Mark(data.Id + "_full_init_end");
+    performanceManager.Measure(data.Id + "_full_init",data.Id + "_full_init_start",data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
-})
+}) 
+*/

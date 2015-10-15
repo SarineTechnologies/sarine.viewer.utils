@@ -1,37 +1,13 @@
 'use strict';
 module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt)
-    var files = ["Gruntfile.js", "package.json", "dist/*.js", "src/*.*", "bower.json", "release.cmd", "commit.cmd"]
-    var message = "commit"
+    var files = ["Gruntfile.js", "GruntfileBundle.js", "package.json", "dist/*.js", "dist/*.map", "src/*.*", "bower.json", "release.cmd", "commit.cmd"]
+     var message = "commit"
     grunt.initConfig({
         config: grunt.file.readJSON("bower.json"),
         version: {
             project: {
                 src: ['bower.json', 'package.json']
-            }
-        },
-        copy: {
-            build: {
-                flatten: true,
-                src: ["src/*.png"],
-                dest: "dist",
-                expand: true
-            }
-        },
-        concat: {
-            build: {
-                src: ["src/*.js"],
-                dest: 'dist/sarine.viewer.utils.js'
-            }     
-        },      
-        uglify: {
-            build: {
-                options: {
-                    mangle: false
-                },
-                files: {
-                    'dist/sarine.viewer.utils.min.js': ['dist/sarine.viewer.utils.js']
-                }
             }
         },
         gitcommit: {
@@ -97,7 +73,6 @@ module.exports = function(grunt) {
             }
         }
     })
-    grunt.registerTask('build', ['copy','concat','uglify']);
     grunt.registerTask('commit', ['prompt', 'gitadd', 'gitcommit:all', 'gitpush']);
-    grunt.registerTask('release-git', ['version:project:patch', 'gitcommit:bower', 'release']);
+    grunt.registerTask('release-git', ['release:' + grunt.file.readJSON("bower.json")["version"]]);
 };
