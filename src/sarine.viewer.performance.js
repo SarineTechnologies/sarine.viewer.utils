@@ -1,4 +1,4 @@
-/*if (window.performance == undefined || window.performance.now == undefined) {
+if (window.performance == undefined || window.performance.now == undefined) {
     window.performance = {}
     window.performance.now = (function() {
         return performance.now ||
@@ -196,4 +196,3 @@ $(document).on("full_init_end", function(event, data) {
     performanceManager.Measure(data.Id + "_full_init",data.Id + "_full_init_start",data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
 }) 
-*/
