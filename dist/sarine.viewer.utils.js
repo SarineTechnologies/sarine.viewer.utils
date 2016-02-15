@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Tuesday, December 8th, 2015, 11:35:00 AM 
+sarine.viewer.utils - v1.9.0 -  Monday, February 15th, 2016, 5:32:48 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -630,20 +630,24 @@ var performanceManager = (function(isDebugMode) {
             return;
         var nr = typeof(newrelic) != 'undefined' ? newrelic : {
                 addToTrace: function(obj) {
-                    console.log(obj)
+                    console.log(obj);                    
                 },
                 setCustomAttribute: function(name, value) {
                     console.log({
                         name: name,
                         value: value
-                    })
+                    });
+                    callToGA(measure);
                 }
             },
             now = Date.now();
+        
+        
+
         if(measure.name.indexOf("first_init") != -1 && !firstInit && window.performance){
             firstInit = true;
             window.performance.measure('first_init','mark_start',measure.name + '_end');
-            var m = window.performance.getEntriesByName('first_init')[0]
+            var m = window.performance.getEntriesByName('first_init')[0];
             nr.setCustomAttribute('first_init',m.duration + m.startTime); 
         }
         nr.addToTrace({
@@ -654,9 +658,28 @@ var performanceManager = (function(isDebugMode) {
                 type : measure.name.split("_").slice(2).join("-")
                 
             })
-        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration)
+        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration);       
+
+
         return measure;
     }
+
+    function callToGA(measure){        
+        //call to analytics
+        if(window.gaUtils && window.gaUtils.gaRun && typeof measure !== 'undefined'){
+
+            var exp  = measure.name.split("_").slice(2)[0],
+                eventType = measure.name.split("_").slice(2).slice(1,3).join("-"),
+                pageName = ['/vp',exp,eventType].join('/');
+
+            window.gaUtils.gaRun('send', 'event', {
+                 'eventCategory': exp,
+                 'eventAction': eventType,
+                 'eventValue': Math.round(measure.duration)
+            });
+        }
+    }
+
     function calcTime(eventName) {
         if (typeof window.performance.getEntriesByName === 'undefined')
             return;
