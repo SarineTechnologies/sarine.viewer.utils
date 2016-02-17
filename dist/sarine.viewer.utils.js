@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Monday, February 15th, 2016, 5:32:48 PM 
+sarine.viewer.utils - v1.9.0 -  Wednesday, February 17th, 2016, 2:57:32 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -554,7 +554,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
             };
     })();
 }
-  
+
 
 if (window.performance.mark == undefined) {
     window.performance._marks = []
@@ -592,7 +592,7 @@ if (window.performance.mark == undefined) {
 
     }
 
-}   
+}
 
 
 
@@ -602,7 +602,8 @@ window.performance.mark("mark_start");
 var startTime = Date.now();
 
 var performanceManager = (function(isDebugMode) {
-    var firstInit = false, fullInit = false;
+    var firstInit = false,
+        fullInit = false;
 
     if (isDebugMode) $("#debug_log").show()
     else $("#debug_log").hide();
@@ -616,74 +617,77 @@ var performanceManager = (function(isDebugMode) {
         $('#' + id + '>.value').html(formatTime(calcTime(id)))
     }
 
-    function measure(id,start,end) {
+    function measure(id, start, end) {
         if (typeof window.performance.measure !== 'undefined')
-            window.performance.measure(id,start,end);  
+            window.performance.measure(id, start, end);
     }
 
     function mark(eventName) {
         if (typeof window.performance.mark !== 'undefined')
             window.performance.mark(eventName);
     }
-    function newRelic(measure){
-        if(typeof measure === 'undefined')
+
+    function newRelic(measure) {
+        if (typeof measure === 'undefined')
             return;
         var nr = typeof(newrelic) != 'undefined' ? newrelic : {
                 addToTrace: function(obj) {
-                    console.log(obj);                    
+                    console.log(obj);                                      
                 },
                 setCustomAttribute: function(name, value) {
                     console.log({
                         name: name,
                         value: value
                     });
-                    callToGA(measure);
+                    callToGA(measure);                                            
                 }
             },
             now = Date.now();
-        
-        
 
-        if(measure.name.indexOf("first_init") != -1 && !firstInit && window.performance){
+
+
+        if (measure.name.indexOf("first_init") != -1 && !firstInit && window.performance) {
             firstInit = true;
-            window.performance.measure('first_init','mark_start',measure.name + '_end');
+            window.performance.measure('first_init', 'mark_start', measure.name + '_end');
             var m = window.performance.getEntriesByName('first_init')[0];
-            nr.setCustomAttribute('first_init',m.duration + m.startTime); 
+            nr.setCustomAttribute('first_init', m.duration + m.startTime);
         }
         nr.addToTrace({
-                name : measure.name, 
-                start : startTime,
-                end : startTime + measure.startTime + measure.duration,
-                origin : location.origin,
-                type : measure.name.split("_").slice(2).join("-")
-                
-            })
-        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration);       
+            name: measure.name,
+            start: startTime,
+            end: startTime + measure.startTime + measure.duration,
+            origin: location.origin,
+            type: measure.name.split("_").slice(2).join("-")
+
+        })
+        nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration);
 
 
         return measure;
     }
 
-    function callToGA(measure){        
+    function callToGA(measure) {
         //call to analytics
-        if(window.gaUtils && window.gaUtils.gaRun && typeof measure !== 'undefined'){
+        if (window.gaUtils && window.gaUtils.gaRun && typeof measure !== 'undefined') {
 
-            var exp  = measure.name.split("_").slice(2)[0],
-                eventType = measure.name.split("_").slice(2).slice(1,3).join("-"),
-                pageName = ['/vp',exp,eventType].join('/');
+            var exp = measure.name.split("_").slice(2)[0],
+                eventType = measure.name.split("_").slice(2).slice(1, 3).join("-"),
+                pageName = ['/vp', exp, eventType].join('/');
 
-            window.gaUtils.gaRun('send', 'event', {
-                 'eventCategory': exp,
-                 'eventAction': eventType,
-                 'eventValue': Math.round(measure.duration)
-            });
+            
+            window.gaUtils.gaRun('send',
+                'timing',
+                exp,
+                eventType,
+                measure.duration)
+
         }
     }
 
     function calcTime(eventName) {
         if (typeof window.performance.getEntriesByName === 'undefined')
             return;
-        
+
         var measure = window.performance.getEntriesByName(eventName)[0];
         if (newRelic(measure))
             return measure.duration + measure.startTime;
@@ -692,7 +696,7 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function init(viewersArr) {
-       /* //init debug box 
+        /* //init debug box 
         var ul = document.createElement('ul');
         ul.id = 'debug_log';
         ul.style.position = "absolute";
@@ -726,42 +730,42 @@ var performanceManager = (function(isDebugMode) {
          if (isDebugMode) $("#debug_log").show()
          else $("#debug_log").hide();
  */
-    } 
+    }
 
-    return {         
+    return {
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
         Init: init
     }
-})(location.hash.indexOf("debug") == 1);  
+})(location.hash.indexOf("debug") == 1);
 
- 
-$(document).on("loadTemplate", function() {  
-    if(vm)
+
+$(document).on("loadTemplate", function() {
+    if (vm)
         performanceManager.Init(vm.getViewers());
-}) 
+})
 
-$(document).on("first_init_start", function(event, data) {    
-    performanceManager.Mark(data.Id + "_first_init_start");  
+$(document).on("first_init_start", function(event, data) {
+    performanceManager.Mark(data.Id + "_first_init_start");
 
 })
 
 $(document).on("first_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_end");
-    performanceManager.Measure(data.Id + "_first_init",data.Id + "_first_init_start",data.Id + "_first_init_end");
-    performanceManager.CalcAndWriteToLog(data.Id + "_first_init"); 
-})
- 
-$(document).on("full_init_start", function(event, data) {
-    performanceManager.Mark(data.Id + "_full_init_start");     
+    performanceManager.Measure(data.Id + "_first_init", data.Id + "_first_init_start", data.Id + "_first_init_end");
+    performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
 })
 
-$(document).on("full_init_end", function(event, data) { 
+$(document).on("full_init_start", function(event, data) {
+    performanceManager.Mark(data.Id + "_full_init_start");
+})
+
+$(document).on("full_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_full_init_end");
-    performanceManager.Measure(data.Id + "_full_init",data.Id + "_full_init_start",data.Id + "_full_init_end");
+    performanceManager.Measure(data.Id + "_full_init", data.Id + "_full_init_start", data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
-}) 
+})
 
 if (!window.location.origin) {
   window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
