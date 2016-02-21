@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Wednesday, February 17th, 2016, 2:57:32 PM 
+sarine.viewer.utils - v1.9.0 -  Sunday, February 21st, 2016, 2:05:24 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -679,7 +679,7 @@ var performanceManager = (function(isDebugMode) {
                 'timing',
                 exp,
                 eventType,
-                measure.duration)
+                Math.round(measure.duration))  
 
         }
     }

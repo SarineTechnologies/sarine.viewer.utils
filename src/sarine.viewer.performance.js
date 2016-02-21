@@ -136,7 +136,7 @@ var performanceManager = (function(isDebugMode) {
                 'timing',
                 exp,
                 eventType,
-                measure.duration)
+                Math.round(measure.duration))  
 
         }
     }
