@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Sunday, February 21st, 2016, 2:05:24 PM 
+sarine.viewer.utils - v1.9.0 -  Tuesday, February 23rd, 2016, 3:00:30 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -638,8 +638,7 @@ var performanceManager = (function(isDebugMode) {
                     console.log({
                         name: name,
                         value: value
-                    });
-                    callToGA(measure);                                            
+                    });                    
                 }
             },
             now = Date.now();
@@ -689,10 +688,15 @@ var performanceManager = (function(isDebugMode) {
             return;
 
         var measure = window.performance.getEntriesByName(eventName)[0];
-        if (newRelic(measure))
-            return measure.duration + measure.startTime;
-        else
-            return 'N/A';
+        //if (newRelic(measure))
+        if (measure.duration && measure.startTime){            
+            callToGA(measure); 
+            if (newRelic(measure))
+                return measure.duration + measure.startTime;
+            else
+                return 'N/A';
+        }            
+        
     }
 
     function init(viewersArr) {
