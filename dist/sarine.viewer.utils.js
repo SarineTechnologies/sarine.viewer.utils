@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Tuesday, February 23rd, 2016, 3:00:30 PM 
+sarine.viewer.utils - v1.9.0 -  Wednesday, March 9th, 2016, 2:53:25 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -614,7 +614,9 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function calcAndWriteToLog(id) {
-        $('#' + id + '>.value').html(formatTime(calcTime(id)))
+        //$('#' + id + '>.value').html(formatTime(calcTime(id)))
+        /*if(id.indexOf('experience') != -1)
+            console.log('performance : ' + id + ', timing = ' + formatTime(calcTime(id)));*/
     }
 
     function measure(id, start, end) {
@@ -683,6 +685,69 @@ var performanceManager = (function(isDebugMode) {
         }
     }
 
+    function callToGaFel(measure){
+        //call to analytics
+        if (window.gaUtils && window.gaUtils.gaRun && 
+            typeof measure !== 'undefined' && 
+            measure.name.indexOf('experience') !== -1) {
+
+            var timingCategory = measure.name.split('-')[0],
+                arr = measure.name.split('-'),
+                arrTemp = arr.shift(),
+                timingVar = arr.join('-'),                
+                timingValue = Math.round(measure.duration),
+                stoneCahce = getFromLocalStorage('stones', document.fel.stone),
+                templateCahce = getFromLocalStorage('templates', document.fel.template),
+                timingLabel = stoneCahce + "/" + templateCahce;
+
+            console.log('GA : ' + 'timingCategory: ' + timingCategory +', timingVar: ' + timingVar + ', timingValue: '+  timingValue + ', timingLabel: '  +timingLabel)
+            window.gaUtils.gaRun('send',
+                'timing',
+                timingCategory,
+                timingVar,
+                timingValue,
+                timingLabel);  
+
+            if(timingVar === "last-experience-completed"){
+                addToLocalStorage('stones', document.fel.stone);
+                addToLocalStorage('templates', document.fel.template);    
+            }
+            
+        }
+    }
+    function getFromLocalStorage(type, value){
+        var storedStr = null,
+            storedArr = null,
+            typeVal = type.substring(0, type.length -1),
+            res = "";
+
+       if (typeof Storage !== "undefined") {
+        if (localStorage.getItem(type) !== null) {
+           storedStr = localStorage.getItem(type);
+          if(storedStr != null){
+            storedArr = JSON.parse(storedStr);
+          }
+          if(storedArr.indexOf(value) !== -1)
+            res = typeVal + "-cached";
+        }
+      }
+
+      return res;
+    }
+
+    function addToLocalStorage (type, value) {
+      var stored;
+      if (typeof Storage !== "undefined") {
+        if (localStorage.getItem(type) !== null) {
+          stored = JSON.parse(localStorage.getItem(type));
+          if (stored.indexOf(value) === -1) {
+            stored.push(value);
+            return localStorage.setItem(type, JSON.stringify(stored));
+          }
+        }
+      }
+    }
+
     function calcTime(eventName) {
         if (typeof window.performance.getEntriesByName === 'undefined')
             return;
@@ -691,6 +756,7 @@ var performanceManager = (function(isDebugMode) {
         //if (newRelic(measure))
         if (measure.duration && measure.startTime){            
             callToGA(measure); 
+            callToGaFel(measure);
             if (newRelic(measure))
                 return measure.duration + measure.startTime;
             else
@@ -750,12 +816,29 @@ $(document).on("loadTemplate", function() {
         performanceManager.Init(vm.getViewers());
 })
 
+
+
 $(document).on("first_init_start", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_start");
 
 })
 
 $(document).on("first_init_end", function(event, data) {
+    //fel event
+    var curExp = data.Id.split('_').slice(2)[0];
+    if(curExp === document.fel.firstExp){
+        performanceManager.Mark(curExp + "-first-init-end");             
+        performanceManager.Measure(curExp + "-first-experience-preview", "FEL-start", curExp + "-first-init-end");
+        performanceManager.CalcAndWriteToLog(curExp + "-first-experience-preview");
+    }
+    if(curExp === document.fel.lastExp){
+        performanceManager.Mark(curExp + "-first-init-end");             
+        performanceManager.Measure(curExp + "-last-experience-preview", "FEL-start", curExp + "-first-init-end");
+        performanceManager.CalcAndWriteToLog(curExp + "-last-experience-preview");
+    }
+    
+    
+    //atom event
     performanceManager.Mark(data.Id + "_first_init_end");
     performanceManager.Measure(data.Id + "_first_init", data.Id + "_first_init_start", data.Id + "_first_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
@@ -766,10 +849,29 @@ $(document).on("full_init_start", function(event, data) {
 })
 
 $(document).on("full_init_end", function(event, data) {
+    //fel event
+    var curExp = data.Id.split('_').slice(2)[0];
+    if(curExp === document.fel.firstExp){
+        performanceManager.Mark(curExp + "-full-init-end");            
+        performanceManager.Measure(curExp + "-first-experience-completed", "FEL-start", curExp + "-full-init-end");
+        performanceManager.CalcAndWriteToLog(curExp + "-first-experience-completed");
+    }
+
+    if(curExp === document.fel.lastExp){
+        performanceManager.Mark(curExp + "-full-init-end");             
+        performanceManager.Measure(curExp + "-last-experience-completed", "FEL-start", curExp + "-full-init-end");
+        performanceManager.CalcAndWriteToLog(curExp + "-last-experience-completed");
+    }
+
     performanceManager.Mark(data.Id + "_full_init_end");
     performanceManager.Measure(data.Id + "_full_init", data.Id + "_full_init_start", data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
 })
+
+
+/*$(document).on("FEL-start", function(event, data) {
+    performanceManager.Mark(document.fel.exp + "-FEL-start");
+})*/
 
 if (!window.location.origin) {
   window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
