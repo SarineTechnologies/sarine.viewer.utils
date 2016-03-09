@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Wednesday, March 9th, 2016, 2:53:25 PM 
+sarine.viewer.utils - v1.9.0 -  Wednesday, March 9th, 2016, 5:23:13 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -614,9 +614,10 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function calcAndWriteToLog(id) {
-        //$('#' + id + '>.value').html(formatTime(calcTime(id)))
-        /*if(id.indexOf('experience') != -1)
-            console.log('performance : ' + id + ', timing = ' + formatTime(calcTime(id)));*/
+        var time = formatTime(calcTime(id));
+        $('#' + id + '>.value').html(time);
+        if(id.indexOf('experience') != -1)
+            console.debug('performance : ' + id + ', timing = ' + time);
     }
 
     function measure(id, start, end) {
