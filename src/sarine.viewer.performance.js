@@ -62,6 +62,7 @@ var performanceManager = (function(isDebugMode) {
     var firstInit = false,
         fullInit = false;
 
+
     if (isDebugMode) $("#debug_log").show()
     else $("#debug_log").hide();
 
@@ -72,9 +73,7 @@ var performanceManager = (function(isDebugMode) {
 
     function calcAndWriteToLog(id) {
         var time = formatTime(calcTime(id));
-        $('#' + id + '>.value').html(time);
-        if(id.indexOf('experience') != -1)
-            console.debug('performance : ' + id + ', timing = ' + time);
+        $('#' + id + '>.value').html(time);        
     }
 
     function measure(id, start, end) {
@@ -158,7 +157,9 @@ var performanceManager = (function(isDebugMode) {
                 templateCahce = getFromLocalStorage('templates', document.fel.template),
                 timingLabel = stoneCahce + "/" + templateCahce;
 
-            console.log('GA : ' + 'timingCategory: ' + timingCategory +', timingVar: ' + timingVar + ', timingValue: '+  timingValue + ', timingLabel: '  +timingLabel)
+            if(location.hash.indexOf("debug") === 1)
+                console.log('GA : ' + 'timingCategory: ' + timingCategory +', timingVar: ' + timingVar + ', timingValue: '+  timingValue + ', timingLabel: '  +timingLabel)
+            
             window.gaUtils.gaRun('send',
                 'timing',
                 timingCategory,
