@@ -126,7 +126,7 @@ var performanceManager = (function(isDebugMode) {
 
     function callToGA(measure) {
         //call to analytics
-        if (window.gaUtils && window.gaUtils.gaRun && typeof measure !== 'undefined') {
+        if (window.gaUtils && window.gaUtils.gaRun && validateMeasure(measure)) {
 
             var exp = measure.name.split("_").slice(2)[0],
                 eventType = measure.name.split("_").slice(2).slice(1, 3).join("-"),
@@ -144,9 +144,8 @@ var performanceManager = (function(isDebugMode) {
 
     function callToGaFel(measure){
         //call to analytics
-        if (window.gaUtils && window.gaUtils.gaRun && 
-            typeof measure !== 'undefined' && 
-            measure.name.indexOf('experience') !== -1) {
+        if (window.gaUtils && window.gaUtils.gaRun && typeof document.fel !== 'undefined' &&
+             validateMeasure(measure) && measure.name.indexOf('experience') !== -1) {
 
             var timingCategory = measure.name.split('-')[0],
                 arr = measure.name.split('-'),
@@ -174,6 +173,13 @@ var performanceManager = (function(isDebugMode) {
             
         }
     }
+
+    function validateMeasure(measure){
+        return typeof measure !== 'undefined' && 
+         typeof measure.name !== 'undefined' && 
+         typeof measure.duration !== 'undefined';
+    }
+
     function getFromLocalStorage(type, value){
         var storedStr = null,
             storedArr = null,
