@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Wednesday, March 16th, 2016, 2:23:50 PM 
+sarine.viewer.utils - v1.9.0 -  Wednesday, March 16th, 2016, 4:16:28 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -667,7 +667,7 @@ var performanceManager = (function(isDebugMode) {
         return measure;
     }
 
-    function callToGA(measure) {
+    /*function callToGA(measure) {
         //call to analytics
         if (window.gaUtils && window.gaUtils.gaRun && validateMeasure(measure)) {
 
@@ -716,7 +716,7 @@ var performanceManager = (function(isDebugMode) {
             
         }
     }
-
+*/
     function validateMeasure(measure){
         return typeof measure !== 'undefined' && 
          typeof measure.name !== 'undefined' && 
@@ -763,8 +763,8 @@ var performanceManager = (function(isDebugMode) {
         var measure = window.performance.getEntriesByName(eventName)[0];
         //if (newRelic(measure))
         if (measure.duration && measure.startTime){            
-            callToGA(measure); 
-            callToGaFel(measure);
+            //callToGA(measure); 
+            //callToGaFel(measure);
             if (newRelic(measure))
                 return measure.duration + measure.startTime;
             else
