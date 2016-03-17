@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Wednesday, March 16th, 2016, 4:16:28 PM 
+sarine.viewer.utils - v1.9.0 -  Thursday, March 17th, 2016, 11:45:51 AM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -562,6 +562,7 @@ if (window.performance.mark == undefined) {
     window.performance.mark = function(mark_name, duration) {
         duration = duration || 0
         window.performance._marks.push({
+            name : mark_name,
             mark: mark_name,
             startTime: window.performance.now() - document.initTime,
             duration: duration
@@ -630,8 +631,9 @@ var performanceManager = (function(isDebugMode) {
     }
 
     function newRelic(measure) {
-        if (typeof measure === 'undefined')
+        if (!validateMeasure(measure))
             return;
+
         var nr = typeof(newrelic) != 'undefined' ? newrelic : {
                 addToTrace: function(obj) {
                     console.log(obj);                                      
@@ -647,7 +649,7 @@ var performanceManager = (function(isDebugMode) {
 
 
 
-        if (measure.name.indexOf("first_init") != -1 && !firstInit && window.performance) {
+        if (window.performance && validateMeasure(measure) && measure.name.indexOf("first_init") != -1 && !firstInit) {
             firstInit = true;
             window.performance.measure('first_init', 'mark_start', measure.name + '_end');
             var m = window.performance.getEntriesByName('first_init')[0];
@@ -667,7 +669,7 @@ var performanceManager = (function(isDebugMode) {
         return measure;
     }
 
-    /*function callToGA(measure) {
+    function callToGA(measure) {
         //call to analytics
         if (window.gaUtils && window.gaUtils.gaRun && validateMeasure(measure)) {
 
@@ -701,7 +703,7 @@ var performanceManager = (function(isDebugMode) {
 
             if(location.hash.indexOf("debug") === 1)
                 console.log('GA : ' + 'timingCategory: ' + timingCategory +', timingVar: ' + timingVar + ', timingValue: '+  timingValue + ', timingLabel: '  +timingLabel)
-            
+              
             window.gaUtils.gaRun('send',
                 'timing',
                 timingCategory,
@@ -716,7 +718,7 @@ var performanceManager = (function(isDebugMode) {
             
         }
     }
-*/
+
     function validateMeasure(measure){
         return typeof measure !== 'undefined' && 
          typeof measure.name !== 'undefined' && 
@@ -763,8 +765,8 @@ var performanceManager = (function(isDebugMode) {
         var measure = window.performance.getEntriesByName(eventName)[0];
         //if (newRelic(measure))
         if (measure.duration && measure.startTime){            
-            //callToGA(measure); 
-            //callToGaFel(measure);
+            callToGA(measure); 
+            callToGaFel(measure);
             if (newRelic(measure))
                 return measure.duration + measure.startTime;
             else
