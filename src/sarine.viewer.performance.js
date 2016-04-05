@@ -10,7 +10,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
                 return new Date().getTime();
             };
     })();
-}
+} 
 
 
 if (window.performance.mark == undefined) {
