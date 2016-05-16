@@ -297,11 +297,13 @@ $(document).on("first_init_end", function(event, data) {
         performanceManager.Mark(curExp + "-first-init-end");             
         performanceManager.Measure(curExp + "-first-experience-preview", "FEL-start", curExp + "-first-init-end");
         performanceManager.CalcAndWriteToLog(curExp + "-first-experience-preview");
+        document.pageLoadStatus = "first-experience-preview";
     }
     if(curExp === document.fel.lastExp){
         performanceManager.Mark(curExp + "-first-init-end");             
         performanceManager.Measure(curExp + "-last-experience-preview", "FEL-start", curExp + "-first-init-end");
         performanceManager.CalcAndWriteToLog(curExp + "-last-experience-preview");
+        document.pageLoadStatus = "last-experience-preview";
     }
     
     
@@ -322,18 +324,21 @@ $(document).on("full_init_end", function(event, data) {
         performanceManager.Mark(curExp + "-full-init-end");            
         performanceManager.Measure(curExp + "-first-experience-completed", "FEL-start", curExp + "-full-init-end");
         performanceManager.CalcAndWriteToLog(curExp + "-first-experience-completed");
+        document.pageLoadStatus = "first-experience-completed";
     }
 
     if(curExp === document.fel.lastExp){
         performanceManager.Mark(curExp + "-full-init-end");             
         performanceManager.Measure(curExp + "-last-experience-completed", "FEL-start", curExp + "-full-init-end");
         performanceManager.CalcAndWriteToLog(curExp + "-last-experience-completed");
+        document.pageLoadStatus = "last-experience-completed";
     }
 
     performanceManager.Mark(data.Id + "_full_init_end");
     performanceManager.Measure(data.Id + "_full_init", data.Id + "_full_init_start", data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
 })
+
 
 
 /*$(document).on("FEL-start", function(event, data) {
