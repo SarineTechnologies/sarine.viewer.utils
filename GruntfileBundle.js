@@ -3,45 +3,24 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt)
     var target = grunt.option('target') || "";
     grunt.initConfig({
-        config: grunt.file.readJSON("bower.json"),
-        version: {
-            project: {
-                src: ['bower.json', 'package.json']
-            }
-        },
-        copy: {
-            build: {
-                flatten: true,
-                src: ["src/*.png"],
-                dest: "dist",
-                expand: true
-            }
-        },
+        config: grunt.file.readJSON("package.json"),
         concat: {
             build: {
                 options: {
-                    stripBanners: true,
-                    banner: '/*\n<%= config.name %> - v<%= config.version %> - ' +
-                        ' <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> ' + '\n*/\n',
+                    sourceMap : true,
                 },
                 src: ["src/*.js"],
                 dest: 'dist/sarine.viewer.utils.js'
-            },
-            commentMin : {
-                options: {
-                    stripBanners: true,
-                    banner: '/*\n<%= config.name %> - v<%= config.version %> - ' +
-                        ' <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> ' + '\n*/\n',
-                },
-                src: ["dist/sarine.viewer.utils.min.js"],
-                dest: 'dist/sarine.viewer.utils.min.js'
-            }     
+            }  
         },      
         uglify: {
             build: {
                 options: {
-                    mangle: false,
-                    sourceMap : true
+                    banner: '/*\n<%= config.name %> - v<%= config.version %> - ' +
+                        ' <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> ' + '\n*/\n',
+                    preserveComments: false,
+                    sourceMap : true,
+                    sourceMapIn: "dist/<%= config.name %>.js.map"
                 },
                 files: {
                     'dist/sarine.viewer.utils.min.js': ['dist/sarine.viewer.utils.js']
@@ -49,5 +28,8 @@ module.exports = function(grunt) {
             }
         }
     })
-    grunt.registerTask('bundle', ['copy','concat:build','uglify','concat:commentMin']);
+    grunt.registerTask('bundle', [
+        'concat:build', // concat + map
+        'uglify' //min + banner + remove comments + map
+        ]);
 };
