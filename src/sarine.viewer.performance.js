@@ -117,6 +117,7 @@ var performanceManager = (function(isDebugMode) {
             start: startTime,
             end: startTime + measure.startTime + measure.duration,
             origin: location.origin,
+            duration: Math.round(measure.startTime + measure.duration),
             type: measure.name.split("_").slice(2).join("-")
 
         })
