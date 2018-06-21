@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Wednesday, May 16th, 2018, 3:40:59 PM 
+sarine.viewer.utils - v1.9.0 -  Thursday, June 21st, 2018, 4:30:57 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -560,8 +560,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
                 return new Date().getTime();
             };
     })();
-} 
-
+}
 
 if (window.performance.mark == undefined) {
     window.performance._marks = []
@@ -597,12 +596,8 @@ if (window.performance.mark == undefined) {
             else
                 window.performance.mark(new_mark, new Date().getTime() - new Date().getTime())
         }
-
     }
-
 }
-
-
 
 document.initTime = performance.now();
 window.performance.mark("mark_start");
@@ -612,7 +607,6 @@ var startTime = Date.now();
 var performanceManager = (function(isDebugMode) {
     var firstInit = false,
         fullInit = false;
-
 
     if (isDebugMode) $("#debug_log").show()
     else $("#debug_log").hide();
@@ -670,7 +664,7 @@ var performanceManager = (function(isDebugMode) {
             duration: Math.round(measure.startTime + measure.duration),
             type: measure.name.split("_").slice(2).join("-")
 
-        })
+        })  
         nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration);
 
 
@@ -685,12 +679,34 @@ var performanceManager = (function(isDebugMode) {
                 eventType = measure.name.split("_").slice(2).slice(1, 3).join("-"),
                 pageName = ['/vp', exp, eventType].join('/');
 
+            if(location.hash.indexOf("debug") === 1)
+                console.log('GA callToGA timing: ' + 'exp: ' + exp +', eventType: ' + eventType + ', duration: ' + Math.round(measure.duration))
             
             window.gaUtils.gaRun('send',
                 'timing',
                 exp,
                 eventType,
                 Math.round(measure.duration))  
+
+        }
+    }
+
+    function callEventToGATimeFromFELstart(measure) {
+        //call to analytics
+        if (window.gaUtils && window.gaUtils.gaRun && validateMeasure(measure)) {
+
+            var exp = measure.name.split("_").slice(2)[0],
+                eventType = measure.name.split("_").slice(2).slice(1, 3).join("-")
+
+            if(location.hash.indexOf("debug") === 1)
+                console.log('GA callEventToGA timing: ' + measure.name.split("_").slice(2).join("_") 
+                + ', duration: ' + (measure.startTime + measure.duration) + ', measure: ', measure)
+            
+            window.gaUtils.gaRun('send', 'event',
+            {
+                eventCategory: measure.name.split("_").slice(2).join("_"),
+                eventAction: Math.round(measure.startTime + measure.duration)
+            });                
 
         }
     }
@@ -771,6 +787,7 @@ var performanceManager = (function(isDebugMode) {
             return;
 
         var measure = window.performance.getEntriesByName(eventName)[0];
+        console.log('calcTime', eventName, measure);
         //if (newRelic(measure))
         if (measure.duration && measure.startTime){            
             callToGA(measure); 
@@ -782,6 +799,14 @@ var performanceManager = (function(isDebugMode) {
         }            
         
     }
+
+    function eventTimeFromFELstart(eventName) {
+        if (typeof window.performance.getEntriesByName === 'undefined')
+            return;
+
+        var measure = window.performance.getEntriesByName(eventName)[0];
+        callEventToGATimeFromFELstart(measure)
+    } 
 
     function init(viewersArr) {
         /* //init debug box 
@@ -824,6 +849,7 @@ var performanceManager = (function(isDebugMode) {
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
+        EventTimeFromFELstart: eventTimeFromFELstart,
         Init: init
     }
 })(location.hash.indexOf("debug") == 1);
@@ -838,7 +864,7 @@ $(document).on("loadTemplate", function() {
 
 $(document).on("first_init_start", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_start");
-
+    console.log('Performance: first_init_start', data);
 })
 
 $(document).on("first_init_end", function(event, data) {
@@ -862,9 +888,13 @@ $(document).on("first_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_end");
     performanceManager.Measure(data.Id + "_first_init", data.Id + "_first_init_start", data.Id + "_first_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
+    
+    performanceManager.Measure(data.Id + "_first_init_time_from_FEL-start", "FEL-start", data.Id + "_first_init_end");
+    performanceManager.EventTimeFromFELstart(data.Id + "_first_init_time_from_FEL-start");
 })
 
 $(document).on("full_init_start", function(event, data) {
+    console.log('Performance: full_init_start', data);
     performanceManager.Mark(data.Id + "_full_init_start");
 })
 
@@ -888,9 +918,32 @@ $(document).on("full_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_full_init_end");
     performanceManager.Measure(data.Id + "_full_init", data.Id + "_full_init_start", data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
+
+    performanceManager.Measure(data.Id + "_full_init_time_from_FEL-start", "FEL-start", data.Id + "_full_init_end");
+    performanceManager.EventTimeFromFELstart(data.Id + "_full_init_time_from_FEL-start");
 })
 
+// collect additional stats
+window.onload = function(){
+    setTimeout(function(){
+        var t = performance.timing;
+        
+        // Network latency
+        window.gaUtils.gaRun('send', 'event',
+        {
+            eventCategory: 'network_latency',
+            eventAction: Math.round(t.responseEnd - t.fetchStart)
+        });   
+        
+        // The time taken for page load once the page is received from the server
+        window.gaUtils.gaRun('send', 'event',
+        {
+            eventCategory: 'page_load',
+            eventAction: Math.round(t.loadEventEnd - t.responseEnd)
+        });   
 
+    }, 0);
+}
 
 /*$(document).on("FEL-start", function(event, data) {
     performanceManager.Mark(document.fel.exp + "-FEL-start");

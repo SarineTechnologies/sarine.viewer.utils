@@ -10,8 +10,7 @@ if (window.performance == undefined || window.performance.now == undefined) {
                 return new Date().getTime();
             };
     })();
-} 
-
+}
 
 if (window.performance.mark == undefined) {
     window.performance._marks = []
@@ -47,12 +46,8 @@ if (window.performance.mark == undefined) {
             else
                 window.performance.mark(new_mark, new Date().getTime() - new Date().getTime())
         }
-
     }
-
 }
-
-
 
 document.initTime = performance.now();
 window.performance.mark("mark_start");
@@ -62,7 +57,6 @@ var startTime = Date.now();
 var performanceManager = (function(isDebugMode) {
     var firstInit = false,
         fullInit = false;
-
 
     if (isDebugMode) $("#debug_log").show()
     else $("#debug_log").hide();
@@ -120,7 +114,7 @@ var performanceManager = (function(isDebugMode) {
             duration: Math.round(measure.startTime + measure.duration),
             type: measure.name.split("_").slice(2).join("-")
 
-        })
+        })  
         nr.setCustomAttribute(measure.name.split("_").slice(2).join("-"), measure.duration);
 
 
@@ -135,12 +129,34 @@ var performanceManager = (function(isDebugMode) {
                 eventType = measure.name.split("_").slice(2).slice(1, 3).join("-"),
                 pageName = ['/vp', exp, eventType].join('/');
 
+            if(location.hash.indexOf("debug") === 1)
+                console.log('GA callToGA timing: ' + 'exp: ' + exp +', eventType: ' + eventType + ', duration: ' + Math.round(measure.duration))
             
             window.gaUtils.gaRun('send',
                 'timing',
                 exp,
                 eventType,
                 Math.round(measure.duration))  
+
+        }
+    }
+
+    function callEventToGATimeFromFELstart(measure) {
+        //call to analytics
+        if (window.gaUtils && window.gaUtils.gaRun && validateMeasure(measure)) {
+
+            var exp = measure.name.split("_").slice(2)[0],
+                eventType = measure.name.split("_").slice(2).slice(1, 3).join("-")
+
+            if(location.hash.indexOf("debug") === 1)
+                console.log('GA callEventToGA timing: ' + measure.name.split("_").slice(2).join("_") 
+                + ', duration: ' + (measure.startTime + measure.duration) + ', measure: ', measure)
+            
+            window.gaUtils.gaRun('send', 'event',
+            {
+                eventCategory: measure.name.split("_").slice(2).join("_"),
+                eventAction: Math.round(measure.startTime + measure.duration)
+            });                
 
         }
     }
@@ -221,6 +237,7 @@ var performanceManager = (function(isDebugMode) {
             return;
 
         var measure = window.performance.getEntriesByName(eventName)[0];
+        console.log('calcTime', eventName, measure);
         //if (newRelic(measure))
         if (measure.duration && measure.startTime){            
             callToGA(measure); 
@@ -233,62 +250,32 @@ var performanceManager = (function(isDebugMode) {
         
     }
 
-    function init(viewersArr) {
-        /* //init debug box 
-        var ul = document.createElement('ul');
-        ul.id = 'debug_log';
-        ul.style.position = "absolute";
-        ul.style.bottom = "0"
-        ul.style.background = "#ccc";
+    function eventTimeFromFELstart(eventName) {
+        if (typeof window.performance.getEntriesByName === 'undefined')
+            return;
 
-        for (var i = 0; i < viewersArr.length; i++) {
+        var measure = window.performance.getEntriesByName(eventName)[0];
+        callEventToGATimeFromFELstart(measure)
+    } 
 
-            var exist = !(viewersArr[i].imagesArr && viewersArr[i].src + viewersArr[i].imagesArr[0] == viewersArr[i].callbackPic);
-
-            //first init
-            var li = document.createElement('li');
-            var span = document.createElement('span');
-            span.innerText = exist ? 'loading...' : 'not exist';
-            span.className = 'value';
-            li.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init';
-            li.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init : ' + span.outerHTML;
-            ul.appendChild(li);
-
-            //full init
-            var li2 = document.createElement('li');
-            var span = document.createElement('span');
-            span.innerText = exist ? 'loading...' : 'not exist';
-            span.className = 'value';
-            li2.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init';
-            li2.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init : ' + span.outerHTML;
-            ul.appendChild(li2);
-        }
-        document.body.appendChild(ul);
-
-         if (isDebugMode) $("#debug_log").show()
-         else $("#debug_log").hide();
- */
-    }
+    function init(viewersArr) {}
 
     return {
         Measure: measure,
         Mark: mark,
         CalcAndWriteToLog: calcAndWriteToLog,
+        EventTimeFromFELstart: eventTimeFromFELstart,
         Init: init
     }
 })(location.hash.indexOf("debug") == 1);
-
 
 $(document).on("loadTemplate", function() {
     if (vm)
         performanceManager.Init(vm.getViewers());
 })
 
-
-
 $(document).on("first_init_start", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_start");
-
 })
 
 $(document).on("first_init_end", function(event, data) {
@@ -306,12 +293,14 @@ $(document).on("first_init_end", function(event, data) {
         performanceManager.CalcAndWriteToLog(curExp + "-last-experience-preview");
         document.pageLoadStatus = "last-experience-preview";
     }
-    
-    
+        
     //atom event
     performanceManager.Mark(data.Id + "_first_init_end");
     performanceManager.Measure(data.Id + "_first_init", data.Id + "_first_init_start", data.Id + "_first_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_first_init");
+    
+    performanceManager.Measure(data.Id + "_first_init_time_from_FEL-start", "FEL-start", data.Id + "_first_init_end");
+    performanceManager.EventTimeFromFELstart(data.Id + "_first_init_time_from_FEL-start");
 })
 
 $(document).on("full_init_start", function(event, data) {
@@ -338,10 +327,29 @@ $(document).on("full_init_end", function(event, data) {
     performanceManager.Mark(data.Id + "_full_init_end");
     performanceManager.Measure(data.Id + "_full_init", data.Id + "_full_init_start", data.Id + "_full_init_end");
     performanceManager.CalcAndWriteToLog(data.Id + "_full_init");
+
+    performanceManager.Measure(data.Id + "_full_init_time_from_FEL-start", "FEL-start", data.Id + "_full_init_end");
+    performanceManager.EventTimeFromFELstart(data.Id + "_full_init_time_from_FEL-start");
 })
 
+// collect additional stats
+window.onload = function(){
+    setTimeout(function(){
+        var t = performance.timing;
+        
+        // Network latency
+        window.gaUtils.gaRun('send', 'event',
+        {
+            eventCategory: 'network_latency',
+            eventAction: Math.round(t.responseEnd - t.fetchStart)
+        });   
+        
+        // The time taken for page load once the page is received from the server
+        window.gaUtils.gaRun('send', 'event',
+        {
+            eventCategory: 'page_load',
+            eventAction: Math.round(t.loadEventEnd - t.responseEnd)
+        });   
 
-
-/*$(document).on("FEL-start", function(event, data) {
-    performanceManager.Mark(document.fel.exp + "-FEL-start");
-})*/
+    }, 0);
+}
