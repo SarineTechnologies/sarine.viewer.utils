@@ -1,5 +1,5 @@
 /*
-sarine.viewer.utils - v1.9.0 -  Thursday, June 21st, 2018, 4:30:57 PM 
+sarine.viewer.utils - v1.9.0 -  Sunday, June 24th, 2018, 3:58:12 PM 
 */
 $(function() {
      if (typeof utilsManager !== 'undefined'){
@@ -808,42 +808,7 @@ var performanceManager = (function(isDebugMode) {
         callEventToGATimeFromFELstart(measure)
     } 
 
-    function init(viewersArr) {
-        /* //init debug box 
-        var ul = document.createElement('ul');
-        ul.id = 'debug_log';
-        ul.style.position = "absolute";
-        ul.style.bottom = "0"
-        ul.style.background = "#ccc";
-
-        for (var i = 0; i < viewersArr.length; i++) {
-
-            var exist = !(viewersArr[i].imagesArr && viewersArr[i].src + viewersArr[i].imagesArr[0] == viewersArr[i].callbackPic);
-
-            //first init
-            var li = document.createElement('li');
-            var span = document.createElement('span');
-            span.innerText = exist ? 'loading...' : 'not exist';
-            span.className = 'value';
-            li.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init';
-            li.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_first_init : ' + span.outerHTML;
-            ul.appendChild(li);
-
-            //full init
-            var li2 = document.createElement('li');
-            var span = document.createElement('span');
-            span.innerText = exist ? 'loading...' : 'not exist';
-            span.className = 'value';
-            li2.id = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init';
-            li2.innerHTML = viewersArr[i].id + '_' + viewersArr[i].element.data('type') + '_full_init : ' + span.outerHTML;
-            ul.appendChild(li2);
-        }
-        document.body.appendChild(ul);
-
-         if (isDebugMode) $("#debug_log").show()
-         else $("#debug_log").hide();
- */
-    }
+    function init(viewersArr) {}
 
     return {
         Measure: measure,
@@ -854,17 +819,13 @@ var performanceManager = (function(isDebugMode) {
     }
 })(location.hash.indexOf("debug") == 1);
 
-
 $(document).on("loadTemplate", function() {
     if (vm)
         performanceManager.Init(vm.getViewers());
 })
 
-
-
 $(document).on("first_init_start", function(event, data) {
     performanceManager.Mark(data.Id + "_first_init_start");
-    console.log('Performance: first_init_start', data);
 })
 
 $(document).on("first_init_end", function(event, data) {
@@ -882,8 +843,7 @@ $(document).on("first_init_end", function(event, data) {
         performanceManager.CalcAndWriteToLog(curExp + "-last-experience-preview");
         document.pageLoadStatus = "last-experience-preview";
     }
-    
-    
+        
     //atom event
     performanceManager.Mark(data.Id + "_first_init_end");
     performanceManager.Measure(data.Id + "_first_init", data.Id + "_first_init_start", data.Id + "_first_init_end");
@@ -894,7 +854,6 @@ $(document).on("first_init_end", function(event, data) {
 })
 
 $(document).on("full_init_start", function(event, data) {
-    console.log('Performance: full_init_start', data);
     performanceManager.Mark(data.Id + "_full_init_start");
 })
 
@@ -924,8 +883,8 @@ $(document).on("full_init_end", function(event, data) {
 })
 
 // collect additional stats
-window.onload = function(){
-    setTimeout(function(){
+window.addEventListener('load', function () {
+    setTimeout(function () {
         var t = performance.timing;
         
         // Network latency
@@ -943,12 +902,7 @@ window.onload = function(){
         });   
 
     }, 0);
-}
-
-/*$(document).on("FEL-start", function(event, data) {
-    performanceManager.Mark(document.fel.exp + "-FEL-start");
-})*/
-
+}, false);
 if (!window.location.origin) {
   window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
 }

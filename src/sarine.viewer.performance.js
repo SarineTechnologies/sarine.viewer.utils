@@ -333,8 +333,8 @@ $(document).on("full_init_end", function(event, data) {
 })
 
 // collect additional stats
-window.onload = function(){
-    setTimeout(function(){
+window.addEventListener('load', function () {
+    setTimeout(function () {
         var t = performance.timing;
         
         // Network latency
@@ -352,4 +352,4 @@ window.onload = function(){
         });   
 
     }, 0);
-}
+}, false);
