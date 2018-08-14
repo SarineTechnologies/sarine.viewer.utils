@@ -19,6 +19,6 @@
     "grunt-contrib-concat": "^0.5.0"
   },
   "scripts": {
-    "build": "npm install && grunt --gruntfile GruntfileBundle.js bundle"
+    "build": "grunt --gruntfile GruntfileBundle.js bundle"
   }
 }
