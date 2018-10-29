@@ -1,10 +1,7 @@
 {
   "name": "sarine.viewer.utils",
   "title": "sarine.viewer.utils",
-<<<<<<< .merge_file_a45832
   "version": "1.10.1",
-=======
->>>>>>> .merge_file_a40444
   "repository": {
     "type": "git",
     "url": "https://github.com/SarineTechnologies/sarine.viewer.utils.git"
